@@ -189,48 +189,13 @@
             text-shadow: 0 0 10px #00ffff;
         }
         
-        .truth-floating {
+        .truth-corrupted-text {
             position: absolute;
             font-family: monospace;
-            color: #ff8800;
-            font-size: 1.1rem;
-            font-weight: bold;
-            opacity: 0;
-            z-index: 1002;
-            text-shadow: 0 0 8px #ff8800, 0 0 16px #ff8800;
-            pointer-events: none;
-            white-space: nowrap;
-        }
-        
-        .truth-floating.show {
-            animation: truthFloat 4s ease-out forwards;
-        }
-        
-        @keyframes truthFloat {
-            0% {
-                opacity: 0;
-                transform: translate(0, 0) scale(0.8);
-            }
-            20% {
-                opacity: 0.9;
-                transform: translate(0, -10px) scale(1.1);
-            }
-            40% {
-                opacity: 0.7;
-                transform: translate(10px, -20px) scale(1);
-            }
-            60% {
-                opacity: 0.8;
-                transform: translate(-5px, -30px) scale(1.05);
-            }
-            80% {
-                opacity: 0.6;
-                transform: translate(5px, -40px) scale(0.95);
-            }
-            100% {
-                opacity: 0;
-                transform: translate(0, -50px) scale(0.8);
-            }
+            color: #ffaa44;
+            font-size: 0.85rem;
+            opacity: 0.15;
+            z-index: 1001;
         }
         
         @keyframes glitch {
@@ -296,10 +261,6 @@
             .permission-denied {
                 font-size: 1rem;
             }
-            
-            .truth-floating {
-                font-size: 1rem;
-            }
         }
         
         @media (max-width: 480px) {
@@ -309,10 +270,6 @@
             
             .time-display {
                 font-size: 1.2rem;
-            }
-            
-            .truth-floating {
-                font-size: 0.9rem;
             }
         }
     </style>
@@ -348,8 +305,6 @@
         };
         let isCorrupted = false;
         let corruptionLevel = 0;
-        let truthCount = 0;
-        const maxTruthCount = 5;
         
         function getCurrentTime() {
             const now = new Date();
@@ -435,10 +390,6 @@
                 if (corruptionLevel >= 1) {
                     clearInterval(interval);
                     applyFullCorruption();
-                    
-                    if (Math.random() < 0.8) {
-                        createFloatingTruth();
-                    }
                 } else {
                     const warningText = document.getElementById('warning-text');
                     const permissionText = document.getElementById('permission-text');
@@ -451,46 +402,52 @@
                     overlay.style.backgroundColor = `rgba(255, 0, 0, ${corruptionLevel * 0.3})`;
                     
                     createErrorText();
-                    
-                    if (Math.random() < 0.6 && truthCount < maxTruthCount) {
-                        createFloatingTruth();
-                    }
                 }
             }, 100);
         }
         
-        function createFloatingTruth() {
-            if (truthCount >= maxTruthCount) return;
-            truthCount++;
+        function createErrorText() {
+            const overlay = document.getElementById('error-overlay');
             
-            const truthElement = document.createElement('div');
-            truthElement.className = 'truth-floating';
-            truthElement.textContent = "truth:MirrorAYU";
-            
-            const x = Math.random() * 80 + 10;
-            const y = Math.random() * 60 + 20;
-            
-            truthElement.style.left = x + '%';
-            truthElement.style.top = y + '%';
-            
-            document.body.appendChild(truthElement);
-            
-            setTimeout(() => {
-                truthElement.classList.add('show');
-            }, 10);
-            
-            setTimeout(() => {
-                if (truthElement.parentNode) {
-                    truthElement.parentNode.removeChild(truthElement);
+            if (Math.random() < 0.02) {
+                const truthText = document.createElement('div');
+                truthText.className = 'truth-corrupted-text';
+                truthText.textContent = "truth:MirrorAYU";
+                
+                truthText.style.left = Math.random() * 100 + '%';
+                truthText.style.top = Math.random() * 100 + '%';
+                truthText.style.opacity = Math.random() * 0.1 + 0.1;
+                
+                overlay.appendChild(truthText);
+                
+                setTimeout(() => {
+                    if (truthText.parentNode === overlay) {
+                        overlay.removeChild(truthText);
+                    }
+                }, 3000);
+            } else {
+                const errorText = document.createElement('div');
+                errorText.className = 'corrupted-text';
+                
+                const chars = '�¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ';
+                let text = '';
+                for (let i = 0; i < 20; i++) {
+                    text += chars[Math.floor(Math.random() * chars.length)];
                 }
-                truthCount--;
-            }, 4100);
-            
-            setTimeout(() => {
-                if (isCorrupted && Math.random() < 0.7 && truthCount < maxTruthCount) {
-                    createFloatingTruth();
-                }
-            }, 2000);
+                
+                errorText.textContent = text;
+                errorText.style.left = Math.random() * 100 + '%';
+                errorText.style.top = Math.random() * 100 + '%';
+                errorText.style.opacity = Math.random() * 0.5 + 0.1;
+                
+                overlay.appendChild(errorText);
+                
+                setTimeout(() => {
+                    if (errorText.parentNode === overlay) {
+                        overlay.removeChild(errorText);
+                    }
+                }, 3000);
+            }
         }
         
         function corruptText(text) {
@@ -536,45 +493,16 @@
             warningText.textContent = corruptText('您已入梦，窥探现实可能会造成不可挽回的后果。');
             permissionText.textContent = corruptText('[Permission Denied]');
             
-            setInterval(createErrorText, 100);
-            
             setInterval(() => {
+                createErrorText();
+                
                 if (Math.random() > 0.5) {
                     warningText.textContent = corruptText(warningText.textContent);
                 }
                 if (Math.random() > 0.5) {
                     permissionText.textContent = corruptText(permissionText.textContent);
                 }
-                
-                if (Math.random() < 0.5 && truthCount < maxTruthCount) {
-                    createFloatingTruth();
-                }
-            }, 800);
-        }
-        
-        function createErrorText() {
-            const overlay = document.getElementById('error-overlay');
-            const errorText = document.createElement('div');
-            errorText.className = 'corrupted-text';
-            
-            const chars = '�¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ';
-            let text = '';
-            for (let i = 0; i < 20; i++) {
-                text += chars[Math.floor(Math.random() * chars.length)];
-            }
-            
-            errorText.textContent = text;
-            errorText.style.left = Math.random() * 100 + '%';
-            errorText.style.top = Math.random() * 100 + '%';
-            errorText.style.opacity = Math.random() * 0.5 + 0.1;
-            
-            overlay.appendChild(errorText);
-            
-            setTimeout(() => {
-                if (errorText.parentNode === overlay) {
-                    overlay.removeChild(errorText);
-                }
-            }, 3000);
+            }, 100);
         }
         
         function handleClick(event) {
