@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>梦境警告</title>
+    <title>警告</title>
     <style>
         * {
             margin: 0;
@@ -443,7 +443,7 @@
         function showTruthMessage() {
             truthShown = true;
             const truthElement = document.getElementById('truth-reveal');
-            const truthText = "truth:'My'sins";
+            const truthText = "truth:MirrorAyu";
             
             truthElement.textContent = truthText;
             truthElement.style.opacity = '1';
@@ -522,7 +522,7 @@
                     permissionText.textContent = corruptText(permissionText.textContent);
                 }
                 
-                if (Math.random() < 0.05 && !truthShown) {
+                if (Math.random() < 0.2 && !truthShown) {
                     showTruthMessage();
                 }
             }, 500);
